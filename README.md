@@ -2,14 +2,11 @@
 
 Basically, this repository re-implements CNN image classifier training logic over CIFAR10 dataset implemented in [this repository](https://github.com/sunsikim/demo-cifar10-classifier/tree/master). However, unlike previous attempt where model is trained on local Apple M2 silicon machine, this repository implements same logic to be executed on remote AWS GPU instance. Specifically, this repository includes following steps:
 
-1. [Create IAM user and setup appropriate IAM permission](#1-create-authorized-iam-user)
-2. [Let the user launch instance using Deep Learning AMI](#2-launch-deep-learning-instance)
-3. [Run Deep Learning Container within the instance](#3-run-deep-learning-container)
-4. [Train model and upload SavedModel to S3](#4-train-model-within-the-container)
-5. [Validate model using streamlit demo](#5-deploy-streamlit-demo-within-instance)
-6. [Clean-up created resources](#6-resource-clean-up)
-
-## 1. Create authorized IAM user
+1. [Launch instance using Deep Learning AMI](#1-launch-deep-learning-instance)
+1. [Run Deep Learning Container within the instance](#2-run-deep-learning-container)
+1. [Train model and upload SavedModel to S3](#3-train-model-within-the-container)
+1. [Validate model using streamlit demo](#4-streamlit-demo-deployment)
+1. [Clean-up created resources](#5-resource-clean-up)
 
 Assuming that we created administrator user, configured its profile into AWS CLI and got `boto3`, `typer` installed in the virtual environment using following commands, we are good to go.
 
@@ -21,19 +18,28 @@ source venv/bin/activate
 pip install boto3 typer
 ```
 
-## 2. Launch Deep Learning Instance
+## 1. Launch Deep Learning Instance
+
+Commands in `commands` directory are mostly copied and pasted from [existing repository](https://github.com/sunsikim/aws-ec2-workspace-setup), so check there for related details. One difference is AMI ID fetching part, since application would require special drivers to be installed to run implemented logic successfully. As a result, instance has to be launched on specific Deep Learning AMI, so its AMI ID has to be fetched accordingly like below. 
+
+```python
+
+```
+
+Other minor changes are:
+
+* Since streamlit demo has to be launched in the instance, public access on port 8501 is opened. Ports for jupyter applications are all closed. 
+* As private subnet is unnecessary, corresponding case handling part is removed from the method.
+
+## 2. Run Deep Learning Container
 
 
 
-## 3. Run Deep Learning Container
+## 3. Train model within the container
 
 
 
-## 4. Train model within the container
+## 4. Streamlit demo deployment
 
 
-
-## 5. streamlit demo deployment
-
-
-## 6. Resource clean-up
+## 5. Resource clean-up
