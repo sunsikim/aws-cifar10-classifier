@@ -3,7 +3,6 @@ import pathlib
 import commands.ec2 as ec2_commands
 import commands.vpc as vpc_commands
 import typer
-from typing import Optional
 
 app = typer.Typer()
 
@@ -12,7 +11,7 @@ app = typer.Typer()
 def manage_vpc(
         action_type: str = typer.Argument(...),
         profile_name: str = typer.Argument(...),
-        region_name: str = typer.Argument(...),
+        region_name: str = typer.Argument("ap-northeast-2"),
 ):
     session = boto3.Session(profile_name=profile_name, region_name=region_name)
     ec2_client = session.client("ec2")
@@ -32,7 +31,7 @@ def manage_vpc(
 def manage_subnet(
         action_type: str = typer.Argument(...),
         profile_name: str = typer.Argument(...),
-        region_name: str = typer.Argument(...),
+        region_name: str = typer.Argument("ap-northeast-2"),
 ):
     session = boto3.Session(profile_name=profile_name, region_name=region_name)
     ec2_client = session.client("ec2")
@@ -51,57 +50,23 @@ def manage_subnet(
 @app.command("instance")
 def manage_instance(
         action_type: str = typer.Argument(...),
-        profile_name: str = typer.Option(...),
-        region_name: str = typer.Option(...),
-        vpc_name: str = typer.Option(...),
-        subnet_name: str = typer.Option(...),
-        instance_name: str = typer.Option(...),
-        image_id: Optional[str] = typer.Option(None),
-        instance_type: Optional[str] = typer.Option(None),
-        key_name: Optional[str] = typer.Option(None),
+        profile_name: str = typer.Argument(...),
+        region_name: str = typer.Argument("ap-northeast-2"),
 ):
     session = boto3.Session(profile_name=profile_name, region_name=region_name)
     ec2_client = session.client("ec2")
     if action_type.lower() == "run":
-        ec2_commands.run_instance(
-            ec2_client=ec2_client,
-            image_id=image_id,
-            instance_type=instance_type,
-            key_name=key_name,
-            subnet_name=subnet_name,
-            instance_name=instance_name,
-        )
+        ec2_commands.run_instance(ec2_client)
     elif action_type.lower() == "start":
-        ec2_commands.start_instance(
-            ec2_client=ec2_client,
-            subnet_name=subnet_name,
-            instance_name=instance_name,
-        )
+        ec2_commands.start_instance(ec2_client)
     elif action_type.lower() == "stop":
-        ec2_commands.stop_instance(
-            ec2_client=ec2_client,
-            subnet_name=subnet_name,
-            instance_name=instance_name,
-        )
+        ec2_commands.stop_instance(ec2_client)
     elif action_type.lower() == "reboot":
-        ec2_commands.reboot_instance(
-            ec2_client=ec2_client,
-            subnet_name=subnet_name,
-            instance_name=instance_name,
-        )
+        ec2_commands.reboot_instance(ec2_client)
     elif action_type.lower() == "terminate":
-        ec2_commands.terminate_instance(
-            ec2_client=ec2_client,
-            subnet_name=subnet_name,
-            instance_name=instance_name,
-        )
+        ec2_commands.terminate_instance(ec2_client)
     elif action_type.lower() == "describe":
-        ec2_commands.describe_instance(
-            ec2_client=ec2_client,
-            subnet_name=subnet_name,
-            instance_name=instance_name,
-        )
-
+        ec2_commands.describe_instance(ec2_client)
     else:
         raise ValueError(
             f"action_type must be one of ('run', 'start', 'stop', 'reboot', 'terminate', 'describe'); got: '{action_type}'"
@@ -111,27 +76,18 @@ def manage_instance(
 @app.command("key-pair")
 def manage_key_pair(
         action_type: str = typer.Argument(...),
-        profile_name: str = typer.Option(...),
-        region_name: str = typer.Option(...),
-        key_name: str = typer.Option(...),
-        key_dir: Optional[str] = typer.Option("."),
+        profile_name: str = typer.Argument(...),
+        region_name: str = typer.Argument("ap-northeast-2"),
+        key_dir: str = typer.Argument("."),
 ):
     session = boto3.Session(profile_name=profile_name, region_name=region_name)
     ec2_client = session.client("ec2")
     local_dir = pathlib.Path(key_dir).resolve()
     local_dir.mkdir(parents=True, exist_ok=True)
     if action_type.lower() == "create":
-        ec2_commands.create_key_pair(
-            ec2_client=ec2_client,
-            key_name=key_name,
-            local_dir=local_dir,
-        )
+        ec2_commands.create_key_pair(ec2_client, local_dir)
     elif action_type.lower() == "delete":
-        ec2_commands.delete_key_pair(
-            ec2_client=ec2_client,
-            key_name=key_name,
-            local_dir=local_dir,
-        )
+        ec2_commands.delete_key_pair(ec2_client, local_dir)
     else:
         raise ValueError(f"action_type must be one of ('create', 'delete'); got: '{action_type}'")
 
